@@ -14,6 +14,37 @@ namespace cw_3.Controllers
     public class StudentsController : ControllerBase
     {
 
+        //4.3
+        [HttpGet("{indexNumber}")]
+        public IActionResult GetStudents(string indexNumber)
+        {
+
+            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18158;Integrated Security=True"))
+            using (var com = new SqlCommand())
+            {
+                com.Connection = con;
+                com.CommandText = "SELECT S.IndexNumber, EN.Semester, STD.Name FROM STUDENT S "+
+                                  "JOIN ENROLLMENT EN ON EN.IdEnrollment = S.IdEnrollment "+
+                                  "JOIN STUDIES STD ON EN.IdStudy = STD.IdStudy "+
+                                  "WHERE IndexNumber = @index";
+
+                com.Parameters.AddWithValue("index", indexNumber);
+                con.Open();
+                var dr = com.ExecuteReader();
+                while (dr.Read())
+                {
+                    string indexNumb = dr["IndexNumber"].ToString();
+                    string semester = dr["Semester"].ToString();
+                    string name = dr["Name"].ToString();
+                    string anws = $"Numer Indeksu: {indexNumb}\tSemestr: {semester}\tNazwa kierunku: {name}";
+                    return Ok(anws);
+                }
+            }
+            return NotFound("Spróbuj innego numeru indeksu");
+        }
+
+        //4.2
+        /*
         [HttpGet]
         public IActionResult GetStudents()
         {
@@ -34,13 +65,13 @@ namespace cw_3.Controllers
                     st.FirstName = dr["FirstName"].ToString();
                     st.LastName = dr["LastName"].ToString();
                     st.IndexNumber = dr["IndexNumber"].ToString();
-                    st.IdStudent = r.Next(1,20000);
+                    st.IdStudent = r.Next(1, 20000);
                     lista.Add(st);
                 }
             }
             return Ok(lista);
         }
-
+        */
 
 
         //previous work in cw_3
