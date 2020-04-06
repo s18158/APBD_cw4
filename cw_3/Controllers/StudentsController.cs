@@ -13,9 +13,38 @@ namespace cw_3.Controllers
     [Route("api/students")]
     public class StudentsController : ControllerBase
     {
+        //4.5
+        [HttpGet("{indexNumber}")]
+        public IActionResult GetStudents(string indexNumber)
+        {
+
+            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18158;Integrated Security=True"))
+            using (var com = new SqlCommand())
+            {
+                com.Connection = con;
+                com.CommandText = "SELECT S.IndexNumber, EN.Semester, STD.Name FROM STUDENT S " +
+                                  "JOIN ENROLLMENT EN ON EN.IdEnrollment = S.IdEnrollment " +
+                                  "JOIN STUDIES STD ON EN.IdStudy = STD.IdStudy " +
+                                  "WHERE IndexNumber = @index";
+
+                com.Parameters.AddWithValue("index", indexNumber);
+                con.Open();
+                var dr = com.ExecuteReader();
+                while (dr.Read())
+                {
+                    string indexNumb = dr["IndexNumber"].ToString();
+                    string semester = dr["Semester"].ToString();
+                    string name = dr["Name"].ToString();
+                    string anws = $"Numer Indeksu: {indexNumb}\tSemestr: {semester}\tNazwa kierunku: {name}";
+                    return Ok(anws);
+                }
+            }
+            return NotFound("Spróbuj innego numeru indeksu");
+        }
 
         //4.4 - tylko w taki sposób udało mi się obejść problem
         //postman - GET : localhost:55015/api/students/s1111%27%20DROP%20TABLE%20Student--
+        /*
         [HttpGet("{indexNumber}")]
         public IActionResult GetStudents(string indexNumber)
         {
@@ -42,6 +71,7 @@ namespace cw_3.Controllers
             }
             return NotFound("Spróbuj innego numeru indeksu");
         }
+        */
 
         //4.3
         /*
