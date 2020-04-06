@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using cw_3.Models;
 using cw_3.DAL;
 using Microsoft.AspNetCore.Mvc;
+using System.Data.SqlClient;
 
 namespace cw_3.Controllers
 {
@@ -12,6 +13,38 @@ namespace cw_3.Controllers
     [Route("api/students")]
     public class StudentsController : ControllerBase
     {
+
+        [HttpGet]
+        public IActionResult GetStudents()
+        {
+            var lista = new List<Student>();
+            Random r = new Random();
+
+            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18158;Integrated Security=True"))
+            using (var com = new SqlCommand())
+            {
+                com.Connection = con;
+                com.CommandText = "SELECT * FROM STUDENT";
+
+                con.Open();
+                var dr = com.ExecuteReader();
+                while (dr.Read())
+                {
+                    var st = new Student();
+                    st.FirstName = dr["FirstName"].ToString();
+                    st.LastName = dr["LastName"].ToString();
+                    st.IndexNumber = dr["IndexNumber"].ToString();
+                    st.IdStudent = r.Next(1,20000);
+                    lista.Add(st);
+                }
+            }
+            return Ok(lista);
+        }
+
+
+
+        //previous work in cw_3
+        /*
         private readonly IDbService _dbService;
 
         public StudentsController(IDbService dbService)
@@ -24,10 +57,12 @@ namespace cw_3.Controllers
         {
             return Ok(_dbService.GetStudents());
         }
+        */
 
 
-        //previous work
-        /*[HttpGet("{id}")]
+        //previous work in cw_3
+        /*
+        [HttpGet("{id}")]
         public IActionResult GetStudent(int id)
         {
             if (id == 1)
